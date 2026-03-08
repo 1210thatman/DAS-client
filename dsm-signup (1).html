@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSM 회원가입</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --border: #1e2230;
+      --border-focus: #3d6ef5;
+      --accent: #3d6ef5;
+      --accent-glow: rgba(61, 110, 245, 0.25);
+      --accent-hover: #5b86f7;
+      --text: #e8eaf0;
+      --text-muted: #6b7280;
+      --text-label: #9ca3b0;
+      --error: #f05252;
+      --error-bg: rgba(240, 82, 82, 0.08);
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.08);
+      --input-bg: #0d1017;
+      --radius: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(61,110,245,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(61,110,245,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(61,110,245,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 16px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(61,110,245,0.1);
+      border: 1px solid rgba(61,110,245,0.3);
+      border-radius: 100px;
+      padding: 6px 14px;
+      margin-bottom: 20px;
+    }
+
+    .logo-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .logo-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-label);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    label span.req {
+      color: var(--accent);
+      margin-left: 2px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: #0f1420;
+    }
+
+    input.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px var(--error-bg);
+    }
+
+    input.valid {
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    input::placeholder {
+      color: #2e3347;
+    }
+
+    .hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      padding-top: 1px;
+    }
+
+    .hint.error-msg {
+      color: var(--error);
+    }
+
+    .hint.success-msg {
+      color: var(--success);
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .pw-toggle:hover { color: var(--text); }
+
+    input.has-toggle { padding-right: 40px; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 0;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(61,110,245,0.35);
+      letter-spacing: 0.02em;
+      margin-top: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 6px 28px rgba(61,110,245,0.5);
+    }
+
+    .submit-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .submit-btn .btn-spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+
+    .submit-btn.loading .btn-text { display: none; }
+    .submit-btn.loading .btn-spinner { display: block; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 22px;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.toast-success { border-color: rgba(34,197,94,0.4); }
+    #toast.toast-error   { border-color: rgba(240,82,82,0.4); }
+
+    #toast .toast-icon { font-size: 16px; }
+
+    /* API URL badge */
+    .api-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 13px;
+      margin-bottom: 24px;
+    }
+
+    .api-info span.label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .api-url-input {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      box-shadow: none;
+    }
+
+    .api-url-input:focus {
+      box-shadow: none;
+      border: none;
+    }
+
+    /* ── Birth text inputs ───────────────────────────────── */
+    .birth-inputs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .birth-inputs.focused {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .birth-inputs.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px var(--error-bg);
+    }
+
+    .birth-inputs.valid {
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    .birth-seg {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex: 1;
+    }
+
+    .birth-seg:first-child {
+      flex: 2; /* 연도 컬럼 더 넓게 */
+    }
+
+    .birth-text-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 3px 0;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: none;
+    }
+
+    .birth-text-input:focus {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .birth-text-input::placeholder {
+      color: #2a3050;
+      font-weight: 400;
+    }
+
+    .birth-unit {
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .birth-sep {
+      color: var(--border);
+      font-size: 16px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* ── Drum-roll Date Picker ───────────────────────────── */
+    .drum-picker {
+      display: flex;
+      align-items: stretch;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .drum-picker.focused {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .drum-picker.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px var(--error-bg);
+    }
+
+    .drum-picker.valid {
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    /* top & bottom fade masks */
+    .drum-col-wrap {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .drum-col-wrap::before,
+    .drum-col-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 52px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .drum-col-wrap::before {
+      top: 0;
+      background: linear-gradient(to bottom, var(--input-bg) 0%, transparent 100%);
+    }
+
+    .drum-col-wrap::after {
+      bottom: 0;
+      background: linear-gradient(to top, var(--input-bg) 0%, transparent 100%);
+    }
+
+    .drum-col {
+      overflow-y: scroll;
+      height: 156px;          /* 3 visible items × 52px */
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 52px 0;        /* top/bottom padding = 1 item height */
+    }
+
+    .drum-col::-webkit-scrollbar { display: none; }
+
+    .drum-item {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s, font-weight 0.15s;
+      position: relative;
+    }
+
+    .drum-item.selected {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* center highlight bar */
+    .drum-highlight {
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      transform: translateY(-50%);
+      height: 52px;
+      background: rgba(61, 110, 245, 0.08);
+      border-top: 1px solid rgba(61, 110, 245, 0.2);
+      border-bottom: 1px solid rgba(61, 110, 245, 0.2);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* divider between columns */
+    .drum-divider {
+      width: 1px;
+      background: var(--border);
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+
+    /* label inside col */
+    .drum-col-label {
+      position: absolute;
+      bottom: 6px;
+      width: 100%;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    @media (max-width: 520px) {
+      .card { padding: 28px 20px; }
+      .form-row { grid-template-columns: 1fr; gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        <div class="logo-badge">
+          <div class="logo-dot"></div>
+          <span class="logo-text">DSM · Auth</span>
+        </div>
+        <h1>회원가입</h1>
+        <p>대마소프트웨어마이스터고 계정을 만들어보세요</p>
+      </div>
+
+      <!-- API Endpoint 설정 -->
+      <div class="api-info">
+        <span class="label">POST</span>
+        <input class="api-url-input" id="apiEndpoint" type="text" value="http://dsm-login.dsmhs.kr/dsm-login/user/signup" spellcheck="false" />
+      </div>
+
+      <form id="signupForm" class="form-grid" novalidate>
+
+        <!-- 이름 -->
+        <div class="field">
+          <label>이름 <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="text" id="name" placeholder="홍길동" maxlength="4" autocomplete="name" />
+          </div>
+          <span class="hint" id="name-hint">2~4글자 한국어 이름을 입력하세요.</span>
+        </div>
+
+        <!-- 생년월일 (full width) -->
+        <div class="field">
+          <label>생년월일 <span class="req">*</span></label>
+
+          <div class="birth-inputs" id="birthInputs">
+            <div class="birth-seg">
+              <input type="text" id="inYear"  class="birth-text-input" maxlength="4" placeholder="YYYY" inputmode="numeric" />
+              <span class="birth-unit">년</span>
+            </div>
+            <div class="birth-sep">·</div>
+            <div class="birth-seg">
+              <input type="text" id="inMonth" class="birth-text-input" maxlength="2" placeholder="MM" inputmode="numeric" />
+              <span class="birth-unit">월</span>
+            </div>
+            <div class="birth-sep">·</div>
+            <div class="birth-seg">
+              <input type="text" id="inDay"   class="birth-text-input" maxlength="2" placeholder="DD" inputmode="numeric" />
+              <span class="birth-unit">일</span>
+            </div>
+          </div>
+
+          <div class="drum-picker" id="drumPicker">
+            <div class="drum-highlight"></div>
+            <div class="drum-col-wrap">
+              <div class="drum-col" id="colYear"></div>
+              <span class="drum-col-label">년</span>
+            </div>
+            <div class="drum-divider"></div>
+            <div class="drum-col-wrap">
+              <div class="drum-col" id="colMonth"></div>
+              <span class="drum-col-label">월</span>
+            </div>
+            <div class="drum-divider"></div>
+            <div class="drum-col-wrap">
+              <div class="drum-col" id="colDay"></div>
+              <span class="drum-col-label">일</span>
+            </div>
+          </div>
+
+          <span class="hint" id="birth-hint"></span>
+        </div>
+
+        <!-- 학번 (full width) -->
+        <div class="field">
+          <label>학번 <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="number" id="class_number" placeholder="1234" min="1000" max="9999" />
+          </div>
+          <span class="hint" id="classnum-hint">4자리 숫자</span>
+        </div>
+
+        <!-- 아이디 -->
+        <div class="field">
+          <label>아이디 <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="text" id="account_id" placeholder="account_id" autocomplete="username" />
+          </div>
+          <span class="hint" id="id-hint"></span>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 비밀번호 -->
+        <div class="field">
+          <label>비밀번호 <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="password" id="password" class="has-toggle" placeholder="8~30자 (소문자·숫자·특수문자 포함)" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-target="password" aria-label="비밀번호 표시">
+              <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="hint" id="pw-hint">소문자, 숫자, 특수문자를 포함해야 합니다.</span>
+        </div>
+
+        <!-- 비밀번호 확인 -->
+        <div class="field">
+          <label>비밀번호 확인 <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input type="password" id="password_check" class="has-toggle" placeholder="비밀번호를 다시 입력하세요" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-target="password_check" aria-label="비밀번호 확인 표시">
+              <svg id="eye-password_check" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="hint" id="pwcheck-hint"></span>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="btn-text">계정 만들기</span>
+          <div class="btn-spinner"></div>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast">
+    <span class="toast-icon" id="toastIcon"></span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <script>
+    // ─── Eye toggle ───────────────────────────────────────────
+    const eyeOpen = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const eyeOff  = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+    document.querySelectorAll('.pw-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        const isHidden = target.type === 'password';
+        target.type = isHidden ? 'text' : 'password';
+        btn.innerHTML = isHidden ? eyeOff : eyeOpen;
+      });
+    });
+
+    // ─── Drum-roll + Text Input (양방향 동기화) ──────────────
+    const ITEM_H = 52;
+    const now = new Date();
+    const CUR_YEAR = now.getFullYear();
+    const YEAR_MIN = CUR_YEAR - 60;
+    const YEAR_MAX = CUR_YEAR - 5;
+
+    const drumState = { year: CUR_YEAR - 17, month: 1, day: 1 };
+    let suppressScroll = false; // 스크롤 루프 방지
+
+    function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
+
+    // ── 컬럼 빌드 ──
+    function buildCol(colEl, items, selectedVal) {
+      colEl.innerHTML = '';
+      items.forEach(val => {
+        const div = document.createElement('div');
+        div.className = 'drum-item' + (val === selectedVal ? ' selected' : '');
+        div.textContent = String(val).padStart(colEl.id === 'colYear' ? 4 : 2, '0');
+        div.dataset.value = val;
+        colEl.appendChild(div);
+      });
+    }
+
+    function scrollToVal(colEl, val, smooth = false) {
+      const items = Array.from(colEl.querySelectorAll('.drum-item'));
+      const idx = items.findIndex(el => Number(el.dataset.value) === val);
+      if (idx < 0) return;
+      suppressScroll = true;
+      colEl.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'instant' });
+      requestAnimationFrame(() => { suppressScroll = false; });
+    }
+
+    function updateSelected(colEl, val) {
+      colEl.querySelectorAll('.drum-item').forEach(el =>
+        el.classList.toggle('selected', Number(el.dataset.value) === val)
+      );
+    }
+
+    function rebuildDays() {
+      const maxDay = daysInMonth(drumState.year, drumState.month);
+      if (drumState.day > maxDay) drumState.day = maxDay;
+      const days = Array.from({ length: maxDay }, (_, i) => i + 1);
+      buildCol(document.getElementById('colDay'), days, drumState.day);
+      scrollToVal(document.getElementById('colDay'), drumState.day);
+    }
+
+    // ── 텍스트 입력 → 드럼롤 동기화 ──
+    function syncTextToDrum() {
+      const y = parseInt(document.getElementById('inYear').value, 10);
+      const m = parseInt(document.getElementById('inMonth').value, 10);
+      const d = parseInt(document.getElementById('inDay').value, 10);
+
+      if (!isNaN(y) && y >= YEAR_MIN && y <= YEAR_MAX) {
+        drumState.year = y;
+        updateSelected(document.getElementById('colYear'), y);
+        scrollToVal(document.getElementById('colYear'), y, true);
+      }
+      if (!isNaN(m) && m >= 1 && m <= 12) {
+        drumState.month = m;
+        updateSelected(document.getElementById('colMonth'), m);
+        scrollToVal(document.getElementById('colMonth'), m, true);
+        rebuildDays();
+      }
+      if (!isNaN(d) && d >= 1 && d <= daysInMonth(drumState.year, drumState.month)) {
+        drumState.day = d;
+        updateSelected(document.getElementById('colDay'), d);
+        scrollToVal(document.getElementById('colDay'), d, true);
+      }
+    }
+
+    // ── 드럼롤 → 텍스트 입력 동기화 ──
+    function syncDrumToText() {
+      document.getElementById('inYear').value  = String(drumState.year);
+      document.getElementById('inMonth').value = String(drumState.month).padStart(2, '0');
+      document.getElementById('inDay').value   = String(drumState.day).padStart(2, '0');
+    }
+
+    // ── 스크롤 이벤트 핸들러 ──
+    function onColScroll(colEl, key, values) {
+      if (suppressScroll) return;
+      clearTimeout(colEl._scrollTimer);
+      colEl._scrollTimer = setTimeout(() => {
+        const idx = Math.round(colEl.scrollTop / ITEM_H);
+        const clamped = Math.max(0, Math.min(idx, values.length - 1));
+        const val = values[clamped];
+        if (drumState[key] !== val) {
+          drumState[key] = val;
+          updateSelected(colEl, val);
+          if (key === 'year' || key === 'month') rebuildDays();
+          syncDrumToText();
+          validateBirth();
+        }
+      }, 80);
+    }
+
+    // ── 텍스트 입력 이벤트 ──
+    function setupTextInputs() {
+      const inYear  = document.getElementById('inYear');
+      const inMonth = document.getElementById('inMonth');
+      const inDay   = document.getElementById('inDay');
+      const birthInputs = document.getElementById('birthInputs');
+
+      // 숫자만 허용
+      [inYear, inMonth, inDay].forEach(el => {
+        el.addEventListener('keydown', e => {
+          if (!/[0-9]/.test(e.key) && !['Backspace','Delete','ArrowLeft','ArrowRight','Tab'].includes(e.key)) {
+            e.preventDefault();
+          }
+        });
+      });
+
+      // focus 스타일
+      [inYear, inMonth, inDay].forEach(el => {
+        el.addEventListener('focus', () => birthInputs.classList.add('focused'));
+        el.addEventListener('blur',  () => birthInputs.classList.remove('focused'));
+      });
+
+      // 입력할 때마다 드럼롤 업데이트
+      inYear.addEventListener('input', () => {
+        if (inYear.value.length === 4) syncTextToDrum();
+        validateBirth();
+        // 연도 4자리 완성되면 자동으로 월로 포커스
+        if (inYear.value.length === 4) inMonth.focus();
+      });
+
+      inMonth.addEventListener('input', () => {
+        if (inMonth.value.length >= 1) syncTextToDrum();
+        validateBirth();
+        // 월 2자리 완성되면 일로 포커스
+        if (inMonth.value.length === 2) inDay.focus();
+      });
+
+      inDay.addEventListener('input', () => {
+        if (inDay.value.length >= 1) syncTextToDrum();
+        validateBirth();
+      });
+    }
+
+    function initDrum() {
+      const years  = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => YEAR_MIN + i);
+      const months = Array.from({ length: 12 }, (_, i) => i + 1);
+      const days   = Array.from({ length: daysInMonth(drumState.year, drumState.month) }, (_, i) => i + 1);
+
+      buildCol(document.getElementById('colYear'),  years,  drumState.year);
+      buildCol(document.getElementById('colMonth'), months, drumState.month);
+      buildCol(document.getElementById('colDay'),   days,   drumState.day);
+
+      scrollToVal(document.getElementById('colYear'),  drumState.year);
+      scrollToVal(document.getElementById('colMonth'), drumState.month);
+      scrollToVal(document.getElementById('colDay'),   drumState.day);
+
+      document.getElementById('colYear').addEventListener('scroll', function() {
+        onColScroll(this, 'year', years);
+      });
+      document.getElementById('colMonth').addEventListener('scroll', function() {
+        onColScroll(this, 'month', months);
+      });
+      document.getElementById('colDay').addEventListener('scroll', function() {
+        const maxDay = daysInMonth(drumState.year, drumState.month);
+        onColScroll(this, 'day', Array.from({ length: maxDay }, (_, i) => i + 1));
+      });
+
+      // 클릭으로 선택
+      ['colYear','colMonth','colDay'].forEach(id => {
+        document.getElementById(id).addEventListener('click', e => {
+          const item = e.target.closest('.drum-item');
+          if (!item) return;
+          const val = Number(item.dataset.value);
+          const colEl = document.getElementById(id);
+          const items = Array.from(colEl.querySelectorAll('.drum-item'));
+          const idx = items.findIndex(el => Number(el.dataset.value) === val);
+          colEl.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
+        });
+      });
+    }
+
+    initDrum();
+    setupTextInputs();
+    // 초기값으로 텍스트 입력 채우기
+    syncDrumToText();
+
+    function getBirthValue() {
+      const y = String(drumState.year).padStart(4, '0');
+      const m = String(drumState.month).padStart(2, '0');
+      const d = String(drumState.day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function validateBirth() {
+      const birthInputs = document.getElementById('birthInputs');
+      const hint = document.getElementById('birth-hint');
+      const y = parseInt(document.getElementById('inYear').value, 10);
+      const m = parseInt(document.getElementById('inMonth').value, 10);
+      const d = parseInt(document.getElementById('inDay').value, 10);
+      birthInputs.classList.remove('invalid', 'valid');
+      hint.classList.remove('error-msg', 'success-msg');
+
+      const yOk = !isNaN(y) && y >= YEAR_MIN && y <= YEAR_MAX;
+      const mOk = !isNaN(m) && m >= 1 && m <= 12;
+      const dOk = !isNaN(d) && d >= 1 && d <= daysInMonth(y, m);
+
+      if (!yOk || !mOk || !dOk) {
+        birthInputs.classList.add('invalid');
+        hint.classList.add('error-msg');
+        hint.textContent = '유효한 날짜를 입력하세요.';
+      } else {
+        birthInputs.classList.add('valid');
+        hint.textContent = '';
+      }
+    }
+
+    validateBirth();
+
+    // ─── Validation helpers ───────────────────────────────────
+    const PW_REGEX = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!#$%&'()*+,./:;<=>?@\\^_`{|}~])[a-zA-Z0-9!#$%&'()*+,./:;<=>?@\\^_`{|}~]{8,30}$/;
+
+    function setFieldState(inputEl, hintEl, msg, state /* 'error'|'success'|'idle' */) {
+      inputEl.classList.remove('invalid', 'valid');
+      hintEl.classList.remove('error-msg', 'success-msg');
+      hintEl.textContent = msg;
+      if (state === 'error') { inputEl.classList.add('invalid'); hintEl.classList.add('error-msg'); }
+      if (state === 'success') { inputEl.classList.add('valid'); hintEl.classList.add('success-msg'); }
+    }
+
+    // Live validation
+    const nameEl       = document.getElementById('name');
+    const classNumEl   = document.getElementById('class_number');
+    const accountIdEl  = document.getElementById('account_id');
+    const passwordEl   = document.getElementById('password');
+    const pwCheckEl    = document.getElementById('password_check');
+
+    nameEl.addEventListener('input', () => {
+      const v = nameEl.value.trim();
+      if (!v) return setFieldState(nameEl, document.getElementById('name-hint'), '이름을 입력하세요.', 'error');
+      if (v.length < 2 || v.length > 4) return setFieldState(nameEl, document.getElementById('name-hint'), '2~4글자 이어야 합니다.', 'error');
+      setFieldState(nameEl, document.getElementById('name-hint'), '', 'success');
+    });
+
+    classNumEl.addEventListener('input', () => {
+      const v = parseInt(classNumEl.value, 10);
+      if (!classNumEl.value) return setFieldState(classNumEl, document.getElementById('classnum-hint'), '학번을 입력하세요.', 'error');
+      if (isNaN(v) || v < 1000 || v > 9999) return setFieldState(classNumEl, document.getElementById('classnum-hint'), '1000~9999 사이의 4자리 숫자', 'error');
+      setFieldState(classNumEl, document.getElementById('classnum-hint'), '', 'success');
+    });
+
+    accountIdEl.addEventListener('input', () => {
+      const v = accountIdEl.value.trim();
+      if (!v) return setFieldState(accountIdEl, document.getElementById('id-hint'), '아이디를 입력하세요.', 'error');
+      setFieldState(accountIdEl, document.getElementById('id-hint'), '', 'success');
+    });
+
+    passwordEl.addEventListener('input', () => {
+      const v = passwordEl.value;
+      if (!v) return setFieldState(passwordEl, document.getElementById('pw-hint'), '비밀번호를 입력하세요.', 'error');
+      if (!PW_REGEX.test(v)) return setFieldState(passwordEl, document.getElementById('pw-hint'), '소문자, 숫자, 특수문자를 포함해야 합니다. (8~30자)', 'error');
+      setFieldState(passwordEl, document.getElementById('pw-hint'), '사용 가능한 비밀번호입니다.', 'success');
+      // re-check confirm
+      if (pwCheckEl.value) pwCheckEl.dispatchEvent(new Event('input'));
+    });
+
+    pwCheckEl.addEventListener('input', () => {
+      const v = pwCheckEl.value;
+      if (!v) return setFieldState(pwCheckEl, document.getElementById('pwcheck-hint'), '비밀번호를 다시 입력하세요.', 'error');
+      if (v !== passwordEl.value) return setFieldState(pwCheckEl, document.getElementById('pwcheck-hint'), '비밀번호가 일치하지 않습니다.', 'error');
+      setFieldState(pwCheckEl, document.getElementById('pwcheck-hint'), '비밀번호가 일치합니다.', 'success');
+    });
+
+    // ─── Toast ────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg, type /* 'success'|'error' */) {
+      const el = document.getElementById('toast');
+      const icon = document.getElementById('toastIcon');
+      const msgEl = document.getElementById('toastMsg');
+      el.className = `show toast-${type}`;
+      icon.textContent = type === 'success' ? '✓' : '✕';
+      msgEl.textContent = msg;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.classList.remove('show'); }, 3200);
+    }
+
+    // ─── Submit ───────────────────────────────────────────────
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Trigger all validations
+      [nameEl, classNumEl, accountIdEl, passwordEl, pwCheckEl].forEach(el => {
+        el.dispatchEvent(new Event('input'));
+      });
+
+      // Check for any errors
+      const hasError = [nameEl, classNumEl, accountIdEl, passwordEl, pwCheckEl]
+        .some(el => el.classList.contains('invalid'));
+      if (hasError) {
+        showToast('입력 내용을 확인해주세요.', 'error');
+        return;
+      }
+
+      // Extra check: passwords must match
+      if (passwordEl.value !== pwCheckEl.value) {
+        showToast('비밀번호가 일치하지 않습니다.', 'error');
+        return;
+      }
+
+      const endpoint = document.getElementById('apiEndpoint').value.trim();
+      const payload = {
+        name:           nameEl.value.trim(),
+        birth_day:      getBirthValue(),               // "YYYY-MM-DD"
+        class_number:   parseInt(classNumEl.value, 10),
+        account_id:     accountIdEl.value.trim(),
+        password:       passwordEl.value,
+        password_check: pwCheckEl.value,
+      };
+
+      const btn = document.getElementById('submitBtn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      console.log('📤 요청 URL:', endpoint);
+      console.log('📦 요청 Body:', JSON.stringify({ ...payload, password: '***', password_check: '***' }, null, 2));
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = text; }
+
+        console.log('📥 응답 Status:', res.status);
+        console.log('📥 응답 Body:', data);
+
+        if (res.ok) {
+          // 성공 배너
+          const banner = document.createElement('div');
+          banner.id = 'successBanner';
+          banner.style.cssText = `
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.4);
+            border-radius: 10px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeUp 0.4s ease both;
+            margin-top: 4px;
+          `;
+          banner.innerHTML = `
+            <span style="font-size:22px">🎉</span>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#22c55e;margin-bottom:2px;">회원가입 성공!</div>
+              <div style="font-size:12.5px;color:#6b7280;">계정이 성공적으로 생성되었습니다.</div>
+            </div>
+          `;
+          document.getElementById('signupForm').appendChild(banner);
+          showToast('회원가입이 완료되었습니다! 🎉', 'success');
+          document.getElementById('signupForm').reset();
+          [nameEl, classNumEl, accountIdEl, passwordEl, pwCheckEl].forEach(el => {
+            el.classList.remove('invalid', 'valid');
+          });
+        } else {
+          const errMsg = (typeof data === 'object' && (data.message || data.error))
+            ? (data.message || data.error)
+            : `오류가 발생했습니다. (${res.status})`;
+          showToast(errMsg, 'error');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        showToast('서버에 연결할 수 없습니다. CORS 또는 네트워크를 확인하세요.', 'error');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
