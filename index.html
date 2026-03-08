@@ -604,9 +604,9 @@
         <div class="field">
           <label>학번 <span class="req">*</span></label>
           <div class="input-wrap">
-            <input type="number" id="class_number" placeholder="1234" min="1000" max="9999" />
+            <input type="number" id="class_number" placeholder="1234" min="1101" max="1416" />
           </div>
-          <span class="hint" id="classnum-hint">1로 시작하는 4자리 숫자</span>
+          <span class="hint" id="classnum-hint">1101~1416 사이의 학번</span>
         </div>
 
         <!-- 아이디 -->
@@ -915,12 +915,23 @@
       setFieldState(nameEl, document.getElementById('name-hint'), '', 'success');
     });
 
+    classNumEl.addEventListener('keydown', (e) => {
+      // 첫 글자가 1이 아닌 숫자면 막기
+      const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab'];
+      if (allowed.includes(e.key)) return;
+      if (!/[0-9]/.test(e.key)) { e.preventDefault(); return; }
+      if (classNumEl.value.length === 0 && e.key !== '1') {
+        e.preventDefault();
+        setFieldState(classNumEl, document.getElementById('classnum-hint'), '학번은 1로 시작해야 합니다.', 'error');
+      }
+    });
+
     classNumEl.addEventListener('input', () => {
       const v = classNumEl.value;
       if (!v) return setFieldState(classNumEl, document.getElementById('classnum-hint'), '학번을 입력하세요.', 'error');
       if (!/^1/.test(v)) return setFieldState(classNumEl, document.getElementById('classnum-hint'), '학번은 1로 시작해야 합니다.', 'error');
       const n = parseInt(v, 10);
-      if (isNaN(n) || n < 1000 || n > 1999) return setFieldState(classNumEl, document.getElementById('classnum-hint'), '1000~1999 사이의 숫자여야 합니다.', 'error');
+      if (isNaN(n) || n < 1101 || n > 1416) return setFieldState(classNumEl, document.getElementById('classnum-hint'), '1101~1416 사이의 숫자여야 합니다.', 'error');
       setFieldState(classNumEl, document.getElementById('classnum-hint'), '', 'success');
     });
 
