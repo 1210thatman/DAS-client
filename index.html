@@ -328,41 +328,7 @@
 
     #toast .toast-icon { font-size: 16px; }
 
-    /* API URL badge */
-    .api-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 9px 13px;
-      margin-bottom: 24px;
-    }
 
-    .api-info span.label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .api-url-input {
-      flex: 1;
-      background: none;
-      border: none;
-      padding: 0;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
-      color: var(--accent);
-      box-shadow: none;
-    }
-
-    .api-url-input:focus {
-      box-shadow: none;
-      border: none;
-    }
 
     /* ── Birth text inputs ───────────────────────────────── */
     .birth-inputs {
@@ -579,11 +545,7 @@
         <p>대마소프트웨어마이스터고 계정을 만들어보세요</p>
       </div>
 
-      <!-- API Endpoint 설정 -->
-      <div class="api-info">
-        <span class="label">POST</span>
-        <input class="api-url-input" id="apiEndpoint" type="text" value="https://dsm-login.dsmhs.kr/dsm-login/user/signup" spellcheck="false" />
-      </div>
+
 
       <form id="signupForm" class="form-grid" novalidate>
 
@@ -1018,7 +980,7 @@
         return;
       }
 
-      const endpoint = document.getElementById('apiEndpoint').value.trim();
+      const endpoint = 'https://dsm-login.dsmhs.kr/dsm-login/user/signup';
       const payload = {
         name:           nameEl.value.trim(),
         birth_day:      getBirthValue(),               // "YYYY-MM-DD"
